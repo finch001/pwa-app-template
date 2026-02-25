@@ -1,4 +1,4 @@
-name: Deploy Preview to Cloudflare Pages
+name: Preview
 
 on:
   pull_request:
@@ -14,34 +14,77 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  preview:
-    name: Deploy Preview
+  test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 10
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
 
-      - name: Run tests
-        run: pnpm test
+      - run: pnpm test
 
-      - name: Build
-        run: pnpm build
+  e2e:
+    name: E2E
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Deploy Preview to Cloudflare Pages
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm exec playwright install --with-deps chromium
+
+      - run: pnpm test:e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+          if-no-files-found: ignore
+
+  preview:
+    name: Deploy Preview
+    runs-on: ubuntu-latest
+    needs: [test, e2e]
+    outputs:
+      deployment-url: ${{ steps.deploy.outputs.deployment-url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm build
+
+      - name: Deploy Preview
         id: deploy
         uses: cloudflare/wrangler-action@v3
         with:
@@ -53,23 +96,13 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const prNumber = context.payload.pull_request.number;
-            const branch = context.payload.pull_request.head.ref;
-            const previewUrl = `https://${branch}.pwa-app-template.pages.dev`;
-
-            const comment = `## 🔍 Preview Deployment
-
-            Your preview deployment is ready!
-
-            - **Preview URL**: ${previewUrl}
-            - **Branch**: \`${branch}\`
-            - **Commit**: \`${context.sha.substring(0, 7)}\`
-
-            The preview will be automatically updated when you push new commits.`;
+            const deploymentUrl = '${{ steps.deploy.outputs.deployment-url }}';
+            const branch = '${{ github.head_ref }}';
+            const sha = '${{ github.sha }}'.substring(0, 7);
 
             github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: prNumber,
-              body: comment
+              issue_number: context.payload.pull_request.number,
+              body: `## Preview Deployment\n\n- **URL**: ${deploymentUrl}\n- **Branch**: \`${branch}\`\n- **Commit**: \`${sha}\``
             });
