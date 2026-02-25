@@ -11,7 +11,7 @@
 
 import { useState, useEffect } from 'react'
 import StickyHeader from '../../../components/StickyHeader.tsx'
-import { IconNoteOutlineDuo18 } from "nucleo-ui-outline-duo-18"
+import { NotebookPen } from "lucide-react"
 import { sileo } from "sileo"
 
 interface Note {
@@ -117,7 +117,7 @@ export default function NotesHome() {
                 className="bg-white dark:bg-[#16213e] rounded-2xl p-4 border border-gray-200 dark:border-gray-700/60"
               >
                 <div className="flex items-start gap-3">
-                  <IconNoteOutlineDuo18 size={20} className="text-duo-purple mt-0.5 shrink-0" />
+                  <NotebookPen size={20} className="text-duo-purple mt-0.5 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-800 dark:text-white whitespace-pre-wrap break-words">
                       {note.content}
@@ -138,7 +138,7 @@ export default function NotesHome() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <IconNoteOutlineDuo18 size={48} className="text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+            <NotebookPen size={48} className="text-gray-300 dark:text-gray-600 mx-auto mb-3" />
             <p className="text-sm font-bold text-gray-400 dark:text-gray-500">
               No notes yet
             </p>

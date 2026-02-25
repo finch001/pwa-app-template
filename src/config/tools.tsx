@@ -8,13 +8,12 @@
  * - id: Unique identifier
  * - title: Display name
  * - description: Short description
- * - icon: React icon component (Nucleo UI or custom)
+ * - icon: React icon component (Lucide or custom)
  * - path: Route path
  * - available: Whether the tool is enabled (shows "Coming Soon" badge if false)
  */
 
-import { IconTimerOutlineDuo18 } from "nucleo-ui-outline-duo-18"
-import { IconNoteOutlineDuo18 } from "nucleo-ui-outline-duo-18"
+import { Timer, NotebookPen } from "lucide-react"
 
 export interface ToolCard {
   id: string
@@ -30,7 +29,7 @@ export const tools: ToolCard[] = [
     id: "timer",
     title: "Timer",
     description: "Simple countdown timer",
-    icon: <IconTimerOutlineDuo18 size={32} className="text-duo-blue" />,
+    icon: <Timer size={32} className="text-duo-blue" />,
     path: "/tools/timer",
     available: true,
   },
@@ -38,7 +37,7 @@ export const tools: ToolCard[] = [
     id: "notes",
     title: "Notes",
     description: "Quick note-taking",
-    icon: <IconNoteOutlineDuo18 size={32} className="text-duo-purple" />,
+    icon: <NotebookPen size={32} className="text-duo-purple" />,
     path: "/tools/notes",
     available: true,
   },

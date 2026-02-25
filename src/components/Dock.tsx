@@ -2,11 +2,6 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useDockGesture } from "../hooks/useDockGesture.ts";
 import { navItems } from "../config/navigation.ts";
 
-const iconGradientStyle = {
-  "--nc-gradient-1-color-1": "var(--dock-accent-1)",
-  "--nc-gradient-1-color-2": "var(--dock-accent-2)",
-} as React.CSSProperties;
-
 export default function Dock() {
   const navigate = useNavigate();
   const { navRef, getItemProps } = useDockGesture(navItems, navigate);
@@ -41,21 +36,10 @@ export default function Dock() {
                   }`
                 }
               >
-                {({ isActive }) => (
-                  <>
-                    <Icon
-                      size={28}
-                      color="currentColor"
-                      style={{
-                        ...iconGradientStyle,
-                        opacity: isActive ? 1 : 0.95,
-                      }}
-                    />
-                    <span className="text-[10px] leading-none font-bold">
-                      {label}
-                    </span>
-                  </>
-                )}
+                <Icon size={28} color="currentColor" />
+                <span className="text-[10px] leading-none font-bold">
+                  {label}
+                </span>
               </NavLink>
             );
           })}

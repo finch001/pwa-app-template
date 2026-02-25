@@ -3,4 +3,3 @@ packages:
 
 onlyBuiltDependencies:
   - esbuild
-  - nucleo-ui-fill-18

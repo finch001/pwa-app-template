@@ -24,7 +24,7 @@ pnpm test:e2e          # Run E2E tests (Playwright)
 - **sileo** — toast notifications (`sileo.success()`, `sileo.error()`, `sileo.info()`)
 - **Dexie.js 4** (IndexedDB) for persistent data (see `src/lib/db.example.ts` for pattern)
 - **vite-plugin-pwa** for offline-first PWA with Workbox caching (prompt mode)
-- **Nucleo icons** — `nucleo-glass` (dock nav), `nucleo-ui-outline-duo-18` / `nucleo-ui-fill-duo-18` (tool icons)
+- **lucide-react** — MIT open-source icon library (dock nav + tool icons)
 - **agentation** — dev-only live state inspector (Zustand/Jotai support)
 - **liveline** — dev-only network monitor overlay
 - **canvas-confetti** — celebration effects library
@@ -103,8 +103,8 @@ Duolingo-inspired, flat, clean, and playful. Defined in `src/index.css` and appl
 | Variable | Light | Dark | Usage |
 |----------|-------|------|-------|
 | `--sileo-fill` | `#f3f3f3` | `#161616` | Toast notification SVG fill |
-| `--dock-accent-1` | `#1a1a1a` | `#d4d4d4` | Nucleo glass icon gradient stop 1 |
-| `--dock-accent-2` | `#404040` | `#eeeeee` | Nucleo glass icon gradient stop 2 |
+| `--dock-accent-1` | `#1a1a1a` | `#d4d4d4` | Reserved for custom icon theming |
+| `--dock-accent-2` | `#404040` | `#eeeeee` | Reserved for custom icon theming |
 | `--safe-area-top` | `env(safe-area-inset-top, 0px)` | - | iOS safe area top inset |
 | `--safe-area-bottom` | `env(safe-area-inset-bottom, 0px)` | - | iOS safe area bottom inset |
 
@@ -153,13 +153,11 @@ Floating bottom nav with frosted glass styling.
 **Structure**: Nav items defined in [src/config/navigation.ts](src/config/navigation.ts). Each item has:
 - `to`: Route path
 - `label`: Display text
-- `Icon`: Nucleo Glass icon component
+- `Icon`: Lucide icon component
 
 **Customization**: Add/remove items in `navItems` array. Keep 2-4 items for optimal UX. Default items: Home, Settings.
 
 **Swipe gesture** ([src/hooks/useDockGesture.ts](src/hooks/useDockGesture.ts)): Horizontal swipe shifts focus with spring scale animation (`cubic-bezier(0.34, 1.56, 0.64, 1)`) and haptic feedback. Gesture activates only on horizontal movement >8px.
-
-**Icon theming**: Nucleo glass icons use `--nc-gradient-1-color-1` / `--nc-gradient-1-color-2` CSS variables (set via `--dock-accent-1`/`--dock-accent-2`) for theme-aware gradients.
 
 ### Tools System
 

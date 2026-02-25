@@ -7,7 +7,7 @@
 
 import { useState, useEffect } from 'react'
 import StickyHeader from '../../../components/StickyHeader.tsx'
-import { IconTimerOutlineDuo18 } from "nucleo-ui-outline-duo-18"
+import { Timer } from "lucide-react"
 import { sileo } from "sileo"
 
 export default function TimerHome() {
@@ -64,7 +64,7 @@ export default function TimerHome() {
         <div className="mb-6">
           <div className="bg-white dark:bg-[#16213e] rounded-3xl p-8 border border-gray-200 dark:border-gray-700/60">
             <div className="flex items-center justify-center mb-6">
-              <IconTimerOutlineDuo18 size={48} className="text-duo-blue" />
+              <Timer size={48} className="text-duo-blue" />
             </div>
             <div className="text-center">
               <p className="text-6xl font-extrabold text-gray-800 dark:text-white">
