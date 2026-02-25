@@ -1,1 +1,6 @@
-onlyBuiltDependencies: esbuild nucleo-ui-fill-18
+packages:
+  - "."
+
+onlyBuiltDependencies:
+  - esbuild
+  - nucleo-ui-fill-18
