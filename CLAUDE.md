@@ -5,50 +5,64 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-pnpm dev          # Start dev server (Vite)
-pnpm build        # Type-check (tsc -b) then build for production
-pnpm lint         # ESLint
-pnpm preview      # Preview production build locally
+pnpm dev               # Start dev server (Vite)
+pnpm build             # Type-check (tsc -b) then build for production
+pnpm lint              # ESLint
+pnpm preview           # Preview production build locally
+pnpm test              # Run unit tests (Vitest)
+pnpm test:watch        # Run tests in watch mode
+pnpm test:coverage     # Generate test coverage report
+pnpm test:e2e          # Run E2E tests (Playwright)
 ```
 
 ## Tech Stack
 
 - **React 19** + **TypeScript 5.9** (strict mode) with **Vite 7**
 - **Tailwind CSS 4** via `@tailwindcss/vite` plugin (no postcss config needed)
-- **React Router DOM 7** with hash-based routing (`HashRouter` in `main.tsx`)
-- **@base-ui/react** — headless UI components (Tabs, Collapsible, Dialog, AlertDialog, Progress, NumberField, Toggle, ToggleGroup, ScrollArea)
-- **react-day-picker** — date picker (zh-CN locale, used in bottom sheet Dialog)
+- **React Router DOM 7** with browser routing (`BrowserRouter` in `main.tsx`)
+- **@base-ui/react** — headless UI components (Dialog, Collapsible, ScrollArea, etc.)
 - **sileo** — toast notifications (`sileo.success()`, `sileo.error()`, `sileo.info()`)
-- **Dexie.js 4** (IndexedDB) for persistent data, **localStorage** for settings
-- **vite-plugin-pwa** for offline-first PWA with Workbox caching
-- **Nucleo icons** — `nucleo-glass` (dock nav + action button), `nucleo-ui-outline-duo-18` / `nucleo-ui-fill-duo-18` (feature tool icons)
+- **Dexie.js 4** (IndexedDB) for persistent data (see `src/lib/db.example.ts` for pattern)
+- **vite-plugin-pwa** for offline-first PWA with Workbox caching (prompt mode)
+- **Nucleo icons** — `nucleo-glass` (dock nav), `nucleo-ui-outline-duo-18` / `nucleo-ui-fill-duo-18` (tool icons)
+- **agentation** — dev-only live state inspector (Zustand/Jotai support)
+- **liveline** — dev-only network monitor overlay
+- **canvas-confetti** — celebration effects library
+- **Vitest** + **Testing Library** for unit tests, **Playwright** for E2E
 - **pnpm** as package manager
 
 ## Architecture
 
-This is 宝宝助手 (BabyCare) — a Chinese-only pregnancy/baby care PWA with a Duolingo-inspired UI. All UI text is hardcoded in Chinese. No backend, no auth — everything is local to the device.
+This is a **PWA Template** — a Duolingo-inspired starter kit for building offline-first Progressive Web Apps. It's designed as a foundation for custom tools and features. No backend, no auth — everything runs locally in the browser.
 
 ### Routing
 
-Routes are defined in `src/App.tsx`. Two kinds:
+Routes are defined in [src/App.tsx](src/App.tsx). Two patterns:
 
-- **Layout routes** (wrapped in `<Layout>` with Dock + ScrollArea): `/`, `/history`, `/settings`, `/tools/*` home pages
-- **Full-screen session routes** (no Dock, no Layout): `/tools/kick-counter/session`, `/tools/contraction-timer/session/:sessionId`, `/tools/feeding-log/session/:recordId`
+- **Layout routes** (wrapped in `<Layout>` with Dock + ScrollArea): `/`, `/settings`, `/tools/*` home pages
+- **Full-screen routes** (no Dock, no Layout): Add these for immersive flows/sessions
 
-When navigating away from sessions, use `navigate(path, { replace: true })` to prevent back-button confusion.
+Current routes:
+- `/` — Home page with tool grid
+- `/settings` — Settings page
+- `/tools/timer` — Timer tool home
+- `/tools/notes` — Notes tool home
+
+When building session-based tools, use `navigate(path, { replace: true })` when leaving sessions to prevent back-button confusion.
 
 ### Data Layer
 
-- **Dexie database** (`src/lib/db.ts`): `KickCounterDB` with tables `sessions`, `contractionSessions`, `contractions`, `hospitalBagItems`, `feedingRecords`. Schema versions are incremental — always add a new `db.version(N+1)` when adding tables/indexes.
-- **Settings** (`src/lib/settings.ts`): stored in localStorage under `babycare-settings`. Includes `goalCount`, `mergeWindowMinutes`, `colorMode`, `dueDate`. Also exports helpers `getDaysUntilDue()` and `getWeeksPregnant()`.
+- **Dexie database** (`src/lib/db.example.ts`): Example pattern for IndexedDB via Dexie. Schema versions are incremental — always add a new `db.version(N+1)` when adding tables/indexes. Use `crypto.randomUUID()` for IDs and `Date.now()` for timestamps.
+- **Settings** (`src/lib/settings.example.ts`): Example pattern for localStorage-based settings with TypeScript safety.
 
 ### File Organization
 
-- `src/components/` — reusable UI components (Layout, Dock, StickyHeader, ProgressRing, TipBanner)
+- `src/components/` — reusable UI components (Layout, Dock, StickyHeader, ProgressRing)
 - `src/hooks/` — custom React hooks (useDockGesture)
-- `src/lib/` — pure utilities (db, settings, time, haptics, tips, encouragements, tools, feeding-helpers, hospital-bag-presets)
+- `src/lib/` — pure utilities (haptics, time, plus example patterns for db/settings)
+- `src/config/` — configuration files (navigation, tools)
 - `src/pages/` — route-level components
-- `src/pages/tools/<feature>/` — each tool gets its own subdirectory (kick-counter, contraction-timer, hospital-bag, feeding-log)
+- `src/pages/tools/<feature>/` — each tool gets its own subdirectory
 
 ### Key Conventions
 
@@ -57,8 +71,8 @@ When navigating away from sessions, use `navigate(path, { replace: true })` to p
 - Imports use **explicit `.ts`/`.tsx` extensions**
 - Timestamps are **milliseconds** (`Date.now()`), IDs are **`crypto.randomUUID()`**
 - No state management library — React hooks + local component state only
-- Color mode via `.dark` class toggle on `<html>` — supports system/light/dark (see `applyColorMode()`)
 - Use `sileo.success()` / `sileo.error()` / `sileo.info()` for user feedback instead of `alert()`
+- Dev tools: `agentation` (state inspector) and `liveline` (network monitor) auto-load in dev mode
 
 ### Design System
 
@@ -89,8 +103,10 @@ Duolingo-inspired, flat, clean, and playful. Defined in `src/index.css` and appl
 | Variable | Light | Dark | Usage |
 |----------|-------|------|-------|
 | `--sileo-fill` | `#f3f3f3` | `#161616` | Toast notification SVG fill |
-| `--dock-accent-1` | `#1a1a1a` | `#ffffff` | Nucleo glass icon gradient stop 1 |
-| `--dock-accent-2` | `#404040` | `#d4d4d4` | Nucleo glass icon gradient stop 2 |
+| `--dock-accent-1` | `#1a1a1a` | `#d4d4d4` | Nucleo glass icon gradient stop 1 |
+| `--dock-accent-2` | `#404040` | `#eeeeee` | Nucleo glass icon gradient stop 2 |
+| `--safe-area-top` | `env(safe-area-inset-top, 0px)` | - | iOS safe area top inset |
+| `--safe-area-bottom` | `env(safe-area-inset-bottom, 0px)` | - | iOS safe area bottom inset |
 
 #### Cards
 
@@ -130,32 +146,64 @@ For pickers, tool picker, and confirmations that slide up from bottom:
 | Text muted  | `text-gray-400`      | `text-gray-500`        |
 | Input bg    | `bg-gray-100`        | `bg-gray-800`          |
 
-### Dock (`src/components/Dock.tsx`)
+### Dock ([src/components/Dock.tsx](src/components/Dock.tsx))
 
-Floating bottom nav with frosted glass styling + separate action button.
+Floating bottom nav with frosted glass styling.
 
-**Structure**: Nav bar (left, `flex-1`) + action button (right). Container uses `justify-between px-4 gap-2`.
+**Structure**: Nav items defined in [src/config/navigation.ts](src/config/navigation.ts). Each item has:
+- `to`: Route path
+- `label`: Display text
+- `Icon`: Nucleo Glass icon component
 
-**Nav items**: 3 NavLinks (首页, 记录, 设置) with Nucleo glass icons + text labels. Active state uses theme-inverted colors (`text-gray-800 dark:text-white`), inactive uses `text-gray-400 dark:text-gray-500`.
+**Customization**: Add/remove items in `navItems` array. Keep 2-4 items for optimal UX. Default items: Home, Settings.
 
-**Action button**: Opens a Dialog bottom sheet with tool picker grid (shared tools from `src/lib/tools.tsx`).
+**Swipe gesture** ([src/hooks/useDockGesture.ts](src/hooks/useDockGesture.ts)): Horizontal swipe shifts focus with spring scale animation (`cubic-bezier(0.34, 1.56, 0.64, 1)`) and haptic feedback. Gesture activates only on horizontal movement >8px.
 
-**Swipe gesture** (`src/hooks/useDockGesture.ts`): Horizontal swipe across nav items shifts focus with spring scale animation (`cubic-bezier(0.34, 1.56, 0.64, 1)`) and haptic feedback. Tap behavior preserved — gesture only activates on horizontal movement >8px.
+**Icon theming**: Nucleo glass icons use `--nc-gradient-1-color-1` / `--nc-gradient-1-color-2` CSS variables (set via `--dock-accent-1`/`--dock-accent-2`) for theme-aware gradients.
 
-**Icon theming**: Nucleo glass icons use `--nc-gradient-1-color-1` / `--nc-gradient-1-color-2` CSS variables (set via `--dock-accent-1`/`--dock-accent-2`) for theme-aware accent gradients.
+### Tools System
 
-### Business Logic
+Tools are defined in [src/config/tools.tsx](src/config/tools.tsx). Each tool card includes:
+- `id`: Unique identifier
+- `title`: Display name
+- `description`: Short description
+- `icon`: React icon component
+- `path`: Route path
+- `available`: Whether enabled (shows "Coming Soon" badge if false)
 
-- **Kick counter**: Configurable merge window (3/5/10 min) — first tap in a window increments `kickCount`, subsequent taps within the window are recorded but don't increment. Cardiff Count-to-10 method.
-- **Contraction timer**: tracks duration + interval per contraction. 5-1-1 rule alert (contractions ≤5 min apart, ≥1 min long, for ≥1 hour).
-- **Smart tool ordering** (`src/lib/tools.tsx`): `getWeeksPregnant()` determines tool grid order. Before 28 weeks → contraction timer first. 28+ weeks → kick counter first. Past due date → contraction timer first.
-- **Hospital bag**: checklist with preset items, tracks completion.
-- **Feeding log**: breast + bottle tracking with side switching and duration.
+Default tools: Timer, Notes. Add your own by following the same pattern.
 
-### PWA
+### PWA Configuration
 
-Configured in `vite.config.ts`. Display mode is `standalone` (full-screen like native). Safe area insets handled via CSS env variables (`--safe-area-top`, `--safe-area-bottom`). Custom variant `pwa:` targets `@media (display-mode: standalone)`.
+Configured in [vite.config.ts](vite.config.ts):
+- Display mode: `standalone` (full-screen like native app)
+- Register type: `prompt` (user chooses when to update)
+- Theme color: `#58CC02` (duo-green)
+- Orientation: `portrait`
+- Workbox: Caches all JS, CSS, HTML, images, and SVGs
 
-## Tool Usage
+Safe area insets are handled via CSS env variables (`--safe-area-top`, `--safe-area-bottom`) in [src/index.css](src/index.css).
 
-- **Always use Context7 MCP** (`resolve-library-id` → `query-docs`) when needing library/API documentation, code generation, setup or configuration steps — without the user having to explicitly ask. This ensures up-to-date docs are used instead of relying on training data.
+Custom Tailwind variant `pwa:` targets `@media (display-mode: standalone)` for PWA-specific styles.
+
+### Testing
+
+- **Unit tests**: Vitest + Testing Library for components and utilities
+- **E2E tests**: Playwright for end-to-end flows
+- **Coverage**: Configured to track `src/lib/**/*.ts`, `src/components/**/*.tsx`, `src/pages/**/*.tsx`
+- **Setup**: Test config in [src/test/setup.ts](src/test/setup.ts), includes fake-indexeddb for Dexie testing
+
+### Dev Tools
+
+- **Agentation** (`import.meta.env.DEV` only): Live state inspector with Zustand/Jotai support
+- **Liveline** (optional): Network monitor overlay for debugging API calls
+- **Commit hash**: Exposed via `__COMMIT_HASH__` global for versioning
+
+## Best Practices
+
+1. **Always use Context7 MCP** (`resolve-library-id` → `query-docs`) when needing library/API documentation — ensures up-to-date docs instead of training data
+2. **Read example files first** — `src/lib/db.example.ts` and `src/lib/settings.example.ts` demonstrate patterns
+3. **Follow immutability** — Never mutate state, always create new objects
+4. **Test coverage** — Aim for 80%+ on new code
+5. **Flat color fills** — No shadows, use borders for contrast
+6. **Explicit extensions** — Always use `.ts`/`.tsx` in imports

@@ -1,0 +1,6 @@
+# Cloudflare Pages Redirects Configuration
+# https://developers.cloudflare.com/pages/configuration/redirects/
+
+# SPA fallback - redirect all non-file requests to index.html
+# This ensures React Router works correctly for all routes
+/*    /index.html   200

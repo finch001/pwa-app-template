@@ -41,9 +41,27 @@ pnpm build
 # Preview production build
 pnpm preview
 
+# Run tests
+pnpm test
+
 # Run linter
 pnpm lint
 ```
+
+## Deployment
+
+This template includes ready-to-use GitHub Actions workflows for deploying to **Cloudflare Pages**:
+
+- **Production**: Auto-deploys on push to `main` → `https://<project-name>.pages.dev`
+- **Preview**: Auto-deploys on Pull Requests → `https://<branch>.<project-name>.pages.dev`
+
+**Setup in 2 minutes:**
+
+1. Get your Cloudflare credentials (see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md))
+2. Add two GitHub secrets: `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`
+3. Push to `main` branch
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed instructions.
 
 ## Architecture Patterns
 
